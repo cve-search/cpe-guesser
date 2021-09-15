@@ -51,7 +51,7 @@ def CPEExtractor( cpe=None ):
     record['product'] = cpefield[4]
     cpeline = ""
     for cpeentry in cpefield[:5]:
-        cpeline = cpeline + ":" + cpeentry
+        cpeline = "{}:{}".format(cpeline, cpeentry)
     record['cpeline'] = cpeline[1:] 
     return record 
 

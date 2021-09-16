@@ -65,6 +65,7 @@ def insert( word=None, cpe=None):
         return False
     rdb.sadd('w:{}'.format(word), cpe)
     rdb.zadd('s:{}'.format(word), {cpe: 1}, incr=True)
+    rdb.zadd('rank:cpe', {cpe: 1}, incr=True)
 
 cpe_path = '../data/official-cpe-dictionary_v2.3.xml'
 

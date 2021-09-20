@@ -13,7 +13,19 @@ be used against [cve-search](https://github.com/cve-search/cve-search) to do act
 To use CPE guesser, you have to initialise the Redis database with `import.py`. Then you can use
 the software with `lookup.py` to find the most probable CPE matching the keywords provided.
 
-### Public online version
+### Installation
+
+- `git clone https://github.com/cve-search/cpe-guesser.git`
+- `cd cpe-guesser/data`
+- `chmod +x dump.sh`
+- `cd ../bin`
+- `python3 import.py`
+- Take a cup of black or green tea
+- `python3 server.py` to run the local HTTP server
+
+If you don't want to install it locally, there is a public online version. Check below. 
+
+## Public online version
 
 [cpe-guesser.cve-search.org](https://cpe-guesser.cve-search.org) is public online version of CPE guesser which can be used via
 a simple API. The endpoint is `/search` and the JSON is composed of a query list with the list of keyword(s) to search for.

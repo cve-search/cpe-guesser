@@ -13,6 +13,30 @@ be used against [cve-search](https://github.com/cve-search/cve-search) to do act
 To use CPE guesser, you have to initialise the Redis database with `import.py`. Then you can use
 the software with `lookup.py` to find the most probable CPE matching the keywords provided.
 
+### Public online version
+
+[cpe-guesser.cve-search.org](https://cpe-guesser.cve-search.org) is public online version of CPE guesser which can be used via
+a simple API. The endpoint is `/search` and the JSON is composed of a query list with the list of keyword(s) to search for.
+
+
+~~~~
+curl -s -X POST https://cpe-guesser.cve-search.org/search -d "{\"query\": [\"outlook\", \"connector\"]}" | jq .
+[
+  [
+    18117,
+    "cpe:2.3:a:microsoft:outlook_connector"
+  ],
+  [
+    60947,
+    "cpe:2.3:a:oracle:oracle_communications_unified_communications_suite_connector_for_microsoft_outlook"
+  ],
+  [
+    68306,
+    "cpe:2.3:a:oracle:corporate_time_outlook_connector"
+  ]
+]
+~~~~
+
 ### Command line - `lookup.py`
 
 ~~~~

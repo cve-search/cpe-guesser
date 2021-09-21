@@ -58,7 +58,7 @@ class CPEHandler( xml.sax.ContentHandler ):
             self.record = {}
             self.itemcount += 1
             if self.itemcount % 5000 == 0:
-                print ("... " + str(self.itemcount) + " items processed (" + str(self.wordcount) + " words)")
+                print ("... {} items processed ({} words)".format(str(self.itemcount), str(self.wordcount)))
 
 
 def CPEExtractor( cpe=None ):
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             print(e)
             sys.exit(1)
 
-        print("Uncompressing " + cpe_path + ".gz ...")
+        print("Uncompressing {}.gz ...".format(cpe_path))
         try:
             with gzip.open(cpe_path + ".gz", 'rb') as cpe_gz:
                 with open(cpe_path, 'wb') as cpe_xml:
@@ -117,10 +117,10 @@ if __name__ == '__main__':
             sys.exit(1)
 
     elif os.path.isfile(cpe_path):
-        print("Using existing file " + cpe_path + " ...")
+        print("Using existing file {} ...".format(cpe_path))
 
     if rdb.dbsize() > 0:
-        print("Flushing " + str(rdb.dbsize()) + " keys from the database...")
+        print("Flushing {} keys from the database...".format(str(rdb.dbsize())))
         rdb.flushdb()
 
     print("Populating the database (please be patient)...")
@@ -128,4 +128,4 @@ if __name__ == '__main__':
     Handler = CPEHandler()
     parser.setContentHandler( Handler )
     parser.parse(cpe_path)
-    print("Done! " + str(rdb.dbsize()) + " keys inserted.")
+    print("Done! {} keys inserted.".format(str(rdb.dbsize())))

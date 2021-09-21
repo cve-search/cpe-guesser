@@ -1,6 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+import argparse
+import sys
+import os
+import urllib.request
+import gzip
+import shutil
 import xml.sax
 import redis
+
+# Configuration
+cpe_path = '../data/official-cpe-dictionary_v2.3.xml'
+cpe_source = 'https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz'
 rdb = redis.Redis(host='127.0.0.1', port=6379, db=8)
 
 class CPEHandler( xml.sax.ContentHandler ):
@@ -11,6 +23,8 @@ class CPEHandler( xml.sax.ContentHandler ):
         self.cpe = ""
         self.record  = {}
         self.refs = []
+        self.itemcount = 0
+        self.wordcount = 0
 
     def startElement(self, tag, attributes):
         self.CurrentData = tag
@@ -37,9 +51,14 @@ class CPEHandler( xml.sax.ContentHandler ):
             to_insert = CPEExtractor(cpe=self.record['cpe-23'])
             for word in canonize(to_insert['vendor']):
                 insert( word=word, cpe=to_insert['cpeline'] )
+                self.wordcount += 1
             for word in canonize(to_insert['product']):
                 insert( word=word, cpe=to_insert['cpeline'] )
+                self.wordcount += 1
             self.record = {}
+            self.itemcount += 1
+            if self.itemcount % 5000 == 0:
+                print ("... " + str(self.itemcount) + " items processed (" + str(self.wordcount) + " words)")
 
 
 def CPEExtractor( cpe=None ):
@@ -67,10 +86,46 @@ def insert( word=None, cpe=None):
     rdb.zadd('s:{}'.format(word), {cpe: 1}, incr=True)
     rdb.zadd('rank:cpe', {cpe: 1}, incr=True)
 
-cpe_path = '../data/official-cpe-dictionary_v2.3.xml'
 
-parser = xml.sax.make_parser()
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(description='Initializes the Redis database with CPE dictionary.')
+    argparser.add_argument('--download', '-d', action='count', default=0, help='Download the CPE dictionary even if it already exists.')
+    argparser.add_argument('--replace', '-r', action='count', default=0, help='Flush and repopulated the CPE database.')
+    args = argparser.parse_args()
 
-Handler = CPEHandler()
-parser.setContentHandler( Handler )
-parser.parse(cpe_path)
+    if args.replace == 0 and rdb.dbsize() > 0:
+        print("Warning! The Redis database already has " + str(rdb.dbsize()) + " keys.")
+        print("Use --replace if you want to flush the database and repopulate it.")
+        sys.exit(1)
+
+    if args.download > 0 or not os.path.isfile(cpe_path):
+        print("Downloading CPE data from " + cpe_source  + " ...")
+        try:
+            urllib.request.urlretrieve(cpe_source, cpe_path + ".gz")
+        except (urllib.error.HTTPError, urllib.error.URLError, FileNotFoundError, PermissionError) as e:
+            print(e)
+            sys.exit(1)
+
+        print("Uncompressing " + cpe_path + ".gz ...")
+        try:
+            with gzip.open(cpe_path + ".gz", 'rb') as cpe_gz:
+                with open(cpe_path, 'wb') as cpe_xml:
+                    shutil.copyfileobj(cpe_gz, cpe_xml)
+            os.remove(cpe_path + ".gz")
+        except (FileNotFoundError, PermissionError) as e:
+            print(e)
+            sys.exit(1)
+
+    elif os.path.isfile(cpe_path):
+        print("Using existing file " + cpe_path + " ...")
+
+    if rdb.dbsize() > 0:
+        print("Flushing " + str(rdb.dbsize()) + " keys from the database...")
+        rdb.flushdb()
+
+    print("Populating the database (please be patient)...")
+    parser = xml.sax.make_parser()
+    Handler = CPEHandler()
+    parser.setContentHandler( Handler )
+    parser.parse(cpe_path)
+    print("Done! " + str(rdb.dbsize()) + " keys inserted.")

@@ -18,6 +18,7 @@ the software with `lookup.py` to find the most probable CPE matching the keyword
 - `git clone https://github.com/cve-search/cpe-guesser.git`
 - `cd cpe-guesser/data`
 - `chmod +x dump.sh`
+- `./dump.sh`
 - `cd ../bin`
 - `python3 import.py`
 - Take a cup of black or green tea

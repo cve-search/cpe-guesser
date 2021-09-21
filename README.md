@@ -16,7 +16,8 @@ the software with `lookup.py` to find the most probable CPE matching the keyword
 ### Installation
 
 - `git clone https://github.com/cve-search/cpe-guesser.git`
-- Download the CPE dictionary & populate the database with `python3 cpe-guesser/bin/import.py`.
+- `cd cpe-guesser/bin`
+- Download the CPE dictionary & populate the database with `python3 ./import.py`.
 - Take a cup of black or green tea.
 - `python3 cpe-guesser/bin/server.py` to run the local HTTP server.
 

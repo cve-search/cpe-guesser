@@ -5,8 +5,6 @@ import os
 import sys
 import falcon
 from wsgiref.simple_server import make_server
-import requests
-from datetime import datetime
 import json
 
 runPath = os.path.dirname(os.path.realpath(__file__))
@@ -15,7 +13,6 @@ from lib.cpeguesser import CPEGuesser
 
 class Search():
     def on_post(self, req, resp):
-        ret = []
         data_post = req.bounded_stream.read()
         js = data_post.decode('utf-8')
         try:
@@ -23,10 +20,10 @@ class Search():
         except ValueError:
             resp.status = falcon.HTTP_400
             resp.media = "Missing query array or incorrect JSON format"
-            return            
+            return
 
         if 'query' in q:
-            pass 
+            pass
         else:
             resp.status = falcon.HTTP_400
             resp.media = "Missing query array or incorrect JSON format"

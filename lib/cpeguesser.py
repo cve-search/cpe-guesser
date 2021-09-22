@@ -10,7 +10,7 @@ class CPEGuesser():
     def guessCpe(self, words):
         k=[]
         for keyword in words:
-            k.append('w:{}'.format(keyword.lower()))
+            k.append(f"w:{keyword.lower()}")
 
         maxinter = len(k)
         cpes = []

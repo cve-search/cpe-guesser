@@ -9,6 +9,7 @@ import gzip
 import shutil
 import xml.sax
 import redis
+import time
 
 # Configuration
 cpe_path = '../data/official-cpe-dictionary_v2.3.xml'
@@ -25,6 +26,7 @@ class CPEHandler( xml.sax.ContentHandler ):
         self.refs = []
         self.itemcount = 0
         self.wordcount = 0
+        self.start_time = time.time()
 
     def startElement(self, tag, attributes):
         self.CurrentData = tag
@@ -38,7 +40,7 @@ class CPEHandler( xml.sax.ContentHandler ):
     def characters(self, data):
         if self.title_seen:
             self.title = self.title + data
-      
+
     def endElement(self, tag):
         if tag == 'title':
             self.record['title'] = self.title
@@ -58,7 +60,8 @@ class CPEHandler( xml.sax.ContentHandler ):
             self.record = {}
             self.itemcount += 1
             if self.itemcount % 5000 == 0:
-                print ("... {} items processed ({} words)".format(str(self.itemcount), str(self.wordcount)))
+                time_elapsed = round( time.time() - self.start_time )
+                print (f"... {self.itemcount} items processed ({self.wordcount} words) in {time_elapsed} seconds")
 
 
 def CPEExtractor( cpe=None ):
@@ -70,9 +73,9 @@ def CPEExtractor( cpe=None ):
     record['product'] = cpefield[4]
     cpeline = ""
     for cpeentry in cpefield[:5]:
-        cpeline = "{}:{}".format(cpeline, cpeentry)
-    record['cpeline'] = cpeline[1:] 
-    return record 
+        cpeline = f"{cpeline}:{cpeentry}"
+    record['cpeline'] = cpeline[1:]
+    return record
 
 def canonize( value=None ):
     value = value.lower()
@@ -82,9 +85,9 @@ def canonize( value=None ):
 def insert( word=None, cpe=None):
     if cpe is None or word is None:
         return False
-    rdb.sadd('w:{}'.format(word), cpe)
-    rdb.zadd('s:{}'.format(word), {cpe: 1}, incr=True)
-    rdb.zadd('rank:cpe', {cpe: 1}, incr=True)
+    rdb.sadd(f"w:{word}", cpe)
+    rdb.zadd(f"s:{word}", {cpe: 1}, incr=True)
+    rdb.zadd("rank:cpe", {cpe: 1}, incr=True)
 
 
 if __name__ == '__main__':
@@ -94,33 +97,33 @@ if __name__ == '__main__':
     args = argparser.parse_args()
 
     if args.replace == 0 and rdb.dbsize() > 0:
-        print("Warning! The Redis database already has " + str(rdb.dbsize()) + " keys.")
+        print(f"Warning! The Redis database already has {rdb.dbsize()} keys.")
         print("Use --replace if you want to flush the database and repopulate it.")
         sys.exit(1)
 
     if args.download > 0 or not os.path.isfile(cpe_path):
-        print("Downloading CPE data from " + cpe_source  + " ...")
+        print(f"Downloading CPE data from {cpe_source} ...")
         try:
-            urllib.request.urlretrieve(cpe_source, cpe_path + ".gz")
+            urllib.request.urlretrieve(cpe_source, f"{cpe_path}.gz")
         except (urllib.error.HTTPError, urllib.error.URLError, FileNotFoundError, PermissionError) as e:
             print(e)
             sys.exit(1)
 
-        print("Uncompressing {}.gz ...".format(cpe_path))
+        print(f"Uncompressing {cpe_path}.gz ...")
         try:
-            with gzip.open(cpe_path + ".gz", 'rb') as cpe_gz:
+            with gzip.open(f"{cpe_path}.gz", 'rb') as cpe_gz:
                 with open(cpe_path, 'wb') as cpe_xml:
                     shutil.copyfileobj(cpe_gz, cpe_xml)
-            os.remove(cpe_path + ".gz")
+            os.remove(f"{cpe_path}.gz")
         except (FileNotFoundError, PermissionError) as e:
             print(e)
             sys.exit(1)
 
     elif os.path.isfile(cpe_path):
-        print("Using existing file {} ...".format(cpe_path))
+        print(f"Using existing file {cpe_path} ...")
 
     if rdb.dbsize() > 0:
-        print("Flushing {} keys from the database...".format(str(rdb.dbsize())))
+        print(f"Flushing {rdb.dbsize()} keys from the database...")
         rdb.flushdb()
 
     print("Populating the database (please be patient)...")
@@ -128,4 +131,4 @@ if __name__ == '__main__':
     Handler = CPEHandler()
     parser.setContentHandler( Handler )
     parser.parse(cpe_path)
-    print("Done! {} keys inserted.".format(str(rdb.dbsize())))
+    print(f"Done! {rdb.dbsize()} keys inserted.")

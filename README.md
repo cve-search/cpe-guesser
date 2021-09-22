@@ -50,53 +50,55 @@ curl -s -X POST https://cpe-guesser.cve-search.org/search -d "{\"query\": [\"out
 ### Command line - `lookup.py`
 
 ~~~~
-usage: lookup.py [-h] [--word WORD]
+usage: lookup.py [-h] WORD [WORD ...]
 
 Find potential CPE names from a list of keyword(s) and return a JSON of the results
 
+positional arguments:
+  WORD        One or more keyword(s) to lookup
+
 optional arguments:
-  -h, --help   show this help message and exit
-  --word WORD  One or more keyword(s) to lookup
+  -h, --help  show this help message and exit
 ~~~~
 
 
 ~~~~
-python3 lookup.py  --word microsoft --word sql --word server | jq .
+python3 lookup.py microsoft sql server | jq .
 [
   [
-    51076,
+    51325,
     "cpe:2.3:a:microsoft:sql_server_2017_reporting_services"
   ],
   [
-    51077,
+    51326,
     "cpe:2.3:a:microsoft:sql_server_2019_reporting_services"
   ],
   [
-    57612,
+    57898,
     "cpe:2.3:a:quest:intrust_knowledge_pack_for_microsoft_sql_server"
   ],
   [
-    60090,
+    60386,
     "cpe:2.3:o:microsoft:sql_server"
   ],
   [
-    60660,
+    60961,
     "cpe:2.3:a:microsoft:sql_server_desktop_engine"
   ],
   [
-    64489,
+    64810,
     "cpe:2.3:a:microsoft:sql_server_reporting_services"
   ],
   [
-    75465,
+    75858,
     "cpe:2.3:a:microsoft:sql_server_management_studio"
   ],
   [
-    77161,
+    77570,
     "cpe:2.3:a:microsoft:sql_server"
   ],
   [
-    77793,
+    78206,
     "cpe:2.3:a:ibm:tivoli_storage_manager_for_databases_data_protection_for_microsoft_sql_server"
   ]
 ]

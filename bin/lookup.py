@@ -12,13 +12,8 @@ from lib.cpeguesser import CPEGuesser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find potential CPE names from a list of keyword(s) and return a JSON of the results')
-    parser.add_argument('--word', help='One or more keyword(s) to lookup', action='append')
+    parser.add_argument('word', metavar='WORD', type=str, nargs='+', help='One or more keyword(s) to lookup')
     args = parser.parse_args()
-
-    if args.word is None:
-        print("Missing keyword(s)")
-        parser.print_help()
-        sys.exit(1)
 
     cpeGuesser = CPEGuesser()
     print(json.dumps(cpeGuesser.guessCpe(args.word)))

@@ -94,6 +94,7 @@ if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Initializes the Redis database with CPE dictionary.')
     argparser.add_argument('--download', '-d', action='count', default=0, help='Download the CPE dictionary even if it already exists.')
     argparser.add_argument('--replace', '-r', action='count', default=0, help='Flush and repopulated the CPE database.')
+    argparser.add_argument('--update', '-u', action='store_true', default=False, help='Update the CPE database without flushing')
     args = argparser.parse_args()
 
     if args.replace == 0 and rdb.dbsize() > 0:
@@ -122,7 +123,7 @@ if __name__ == '__main__':
     elif os.path.isfile(cpe_path):
         print(f"Using existing file {cpe_path} ...")
 
-    if rdb.dbsize() > 0:
+    if rdb.dbsize() > 0 and not args.update:
         print(f"Flushing {rdb.dbsize()} keys from the database...")
         rdb.flushdb()
 

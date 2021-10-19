@@ -97,7 +97,7 @@ if __name__ == '__main__':
     argparser.add_argument('--update', '-u', action='store_true', default=False, help='Update the CPE database without flushing')
     args = argparser.parse_args()
 
-    if args.replace == 0 and rdb.dbsize() > 0:
+    if args.replace == 0 and rdb.dbsize() > 0 and not args.update:
         print(f"Warning! The Redis database already has {rdb.dbsize()} keys.")
         print("Use --replace if you want to flush the database and repopulate it.")
         sys.exit(1)

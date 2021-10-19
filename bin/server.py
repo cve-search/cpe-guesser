@@ -14,7 +14,8 @@ runPath = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(runPath, ".."))
 from lib.cpeguesser import CPEGuesser
 
-class Search():
+
+class Search:
     def on_post(self, req, resp):
         data_post = req.bounded_stream.read()
         js = data_post.decode('utf-8')
@@ -33,7 +34,8 @@ class Search():
             return
 
         cpeGuesser = CPEGuesser()
-        resp.media=cpeGuesser.guessCpe(q['query'])
+        resp.media = cpeGuesser.guessCpe(q['query'])
+
 
 if __name__ == '__main__':
     app = falcon.App()
@@ -44,7 +46,7 @@ if __name__ == '__main__':
             print(f"Serving on port {port}...")
             httpd.serve_forever()
     except OSError as e:
-        print (e)
+        print(e)
         sys.exit(1)
     except KeyboardInterrupt:
         sys.exit(0)

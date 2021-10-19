@@ -13,16 +13,19 @@ import time
 
 # Configuration
 cpe_path = '../data/official-cpe-dictionary_v2.3.xml'
-cpe_source = 'https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz'
+cpe_source = (
+    'https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz'
+)
 rdb = redis.Redis(host='127.0.0.1', port=6379, db=8)
 
-class CPEHandler( xml.sax.ContentHandler ):
+
+class CPEHandler(xml.sax.ContentHandler):
     def __init__(self):
         self.cpe = ""
         self.title = ""
         self.title_seen = False
         self.cpe = ""
-        self.record  = {}
+        self.record = {}
         self.refs = []
         self.itemcount = 0
         self.wordcount = 0
@@ -52,19 +55,21 @@ class CPEHandler( xml.sax.ContentHandler ):
         if tag == 'cpe-item':
             to_insert = CPEExtractor(cpe=self.record['cpe-23'])
             for word in canonize(to_insert['vendor']):
-                insert( word=word, cpe=to_insert['cpeline'] )
+                insert(word=word, cpe=to_insert['cpeline'])
                 self.wordcount += 1
             for word in canonize(to_insert['product']):
-                insert( word=word, cpe=to_insert['cpeline'] )
+                insert(word=word, cpe=to_insert['cpeline'])
                 self.wordcount += 1
             self.record = {}
             self.itemcount += 1
             if self.itemcount % 5000 == 0:
-                time_elapsed = round( time.time() - self.start_time )
-                print (f"... {self.itemcount} items processed ({self.wordcount} words) in {time_elapsed} seconds")
+                time_elapsed = round(time.time() - self.start_time)
+                print(
+                    f"... {self.itemcount} items processed ({self.wordcount} words) in {time_elapsed} seconds"
+                )
 
 
-def CPEExtractor( cpe=None ):
+def CPEExtractor(cpe=None):
     if cpe is None:
         return False
     record = {}
@@ -77,12 +82,14 @@ def CPEExtractor( cpe=None ):
     record['cpeline'] = cpeline[1:]
     return record
 
-def canonize( value=None ):
+
+def canonize(value=None):
     value = value.lower()
     words = value.split('_')
     return words
 
-def insert( word=None, cpe=None):
+
+def insert(word=None, cpe=None):
     if cpe is None or word is None:
         return False
     rdb.sadd(f"w:{word}", cpe)
@@ -91,10 +98,30 @@ def insert( word=None, cpe=None):
 
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description='Initializes the Redis database with CPE dictionary.')
-    argparser.add_argument('--download', '-d', action='count', default=0, help='Download the CPE dictionary even if it already exists.')
-    argparser.add_argument('--replace', '-r', action='count', default=0, help='Flush and repopulated the CPE database.')
-    argparser.add_argument('--update', '-u', action='store_true', default=False, help='Update the CPE database without flushing')
+    argparser = argparse.ArgumentParser(
+        description='Initializes the Redis database with CPE dictionary.'
+    )
+    argparser.add_argument(
+        '--download',
+        '-d',
+        action='count',
+        default=0,
+        help='Download the CPE dictionary even if it already exists.',
+    )
+    argparser.add_argument(
+        '--replace',
+        '-r',
+        action='count',
+        default=0,
+        help='Flush and repopulated the CPE database.',
+    )
+    argparser.add_argument(
+        '--update',
+        '-u',
+        action='store_true',
+        default=False,
+        help='Update the CPE database without flushing',
+    )
     args = argparser.parse_args()
 
     if args.replace == 0 and rdb.dbsize() > 0 and not args.update:
@@ -106,7 +133,12 @@ if __name__ == '__main__':
         print(f"Downloading CPE data from {cpe_source} ...")
         try:
             urllib.request.urlretrieve(cpe_source, f"{cpe_path}.gz")
-        except (urllib.error.HTTPError, urllib.error.URLError, FileNotFoundError, PermissionError) as e:
+        except (
+            urllib.error.HTTPError,
+            urllib.error.URLError,
+            FileNotFoundError,
+            PermissionError,
+        ) as e:
             print(e)
             sys.exit(1)
 
@@ -130,6 +162,6 @@ if __name__ == '__main__':
     print("Populating the database (please be patient)...")
     parser = xml.sax.make_parser()
     Handler = CPEHandler()
-    parser.setContentHandler( Handler )
+    parser.setContentHandler(Handler)
     parser.parse(cpe_path)
     print(f"Done! {rdb.dbsize()} keys inserted.")

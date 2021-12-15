@@ -10,7 +10,7 @@ ExecStart=python3 server.py
 User=$(CPE_USER)
 Group=$(CPE_USER)
 Type=simple
-Restart=always
+Restart=on-failure
 StandardOutput=append:/var/log/cpeweb_message.log
 StandardError=append:/var/log/cpeweb_error.log
 

@@ -10,18 +10,45 @@ be used against [cve-search](https://github.com/cve-search/cve-search) to do act
 
 ## Usage
 
-To use CPE guesser, you have to initialise the Redis database with `import.py`. Then you can use
-the software with `lookup.py` to find the most probable CPE matching the keywords provided.
+To use CPE guesser, you have to initialise the Redis database with `import.py`.
+
+Then you can use the software with `lookup.py` to find the most probable CPE matching the keywords provided.
+
+Or by calling the Web server (After running `server.py`), example: `curl -s -X POST http://localhost:8000/search -d "{\"query\": [\"tomcat\"]}" | jq .`
 
 ### Installation
 
 - `git clone https://github.com/cve-search/cpe-guesser.git`
 - `cd cpe-guesser/bin`
 - Download the CPE dictionary & populate the database with `python3 ./import.py`.
-- Take a cup of black or green tea.
+- Take a cup of black or green tea ().
 - `python3 cpe-guesser/bin/server.py` to run the local HTTP server.
 
 If you don't want to install it locally, there is a public online version. Check below. 
+
+### Docker
+
+#### Single image with existing Redis
+
+```bash
+docker build . -t cpe-guesser:l.0
+# Edit settings.yaml content and/or path
+docker run cpe-guesser:l.0 -v $(pwd)/config/settings.yaml:/app/config/settings.yaml
+# Please wait for full import
+```
+
+#### Docker-compose
+
+```bash
+cd docker
+# Edit docker/settings.yaml as you want
+docker-compose up --build -d
+# Please wait for full import
+```
+
+#### Specific usage
+
+If you do not want to use the Web server, `lookup.py` can still be used. Example: `docker exec -it cpe-guesser python3 /app/bin/lookup.py tomcat`
 
 ## Public online version
 

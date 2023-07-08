@@ -6,9 +6,13 @@ import sys
 import falcon
 from wsgiref.simple_server import make_server
 import json
+from dynaconf import Dynaconf
 
 # Configuration
-port = 8000
+settings = Dynaconf(
+    settings_files=['../config/settings.yaml']
+)
+port = settings.server.port
 
 runPath = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(runPath, ".."))

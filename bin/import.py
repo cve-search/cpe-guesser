@@ -128,7 +128,7 @@ if __name__ == '__main__':
     if args.replace == 0 and rdb.dbsize() > 0 and not args.update:
         print(f"Warning! The Redis database already has {rdb.dbsize()} keys.")
         print("Use --replace if you want to flush the database and repopulate it.")
-        sys.exit(1)
+        sys.exit(0)
 
     if args.download > 0 or not os.path.isfile(cpe_path):
         print(f"Downloading CPE data from {cpe_source} ...")

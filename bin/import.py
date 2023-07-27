@@ -10,14 +10,15 @@ import shutil
 import xml.sax
 import redis
 import time
+from dynaconf import Dynaconf
 
 # Configuration
-cpe_path = '../data/official-cpe-dictionary_v2.3.xml'
-cpe_source = (
-    'https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.gz'
+settings = Dynaconf(
+    settings_files=['../config/settings.yaml']
 )
-rdb = redis.Redis(host='127.0.0.1', port=6379, db=8)
-
+cpe_path = settings.cpe.path
+cpe_source = (settings.cpe.source)
+rdb = redis.Redis(host=settings.redis.host, port=settings.redis.port, db=8)
 
 class CPEHandler(xml.sax.ContentHandler):
     def __init__(self):
@@ -127,7 +128,7 @@ if __name__ == '__main__':
     if args.replace == 0 and rdb.dbsize() > 0 and not args.update:
         print(f"Warning! The Redis database already has {rdb.dbsize()} keys.")
         print("Use --replace if you want to flush the database and repopulate it.")
-        sys.exit(1)
+        sys.exit(0)
 
     if args.download > 0 or not os.path.isfile(cpe_path):
         print(f"Downloading CPE data from {cpe_source} ...")

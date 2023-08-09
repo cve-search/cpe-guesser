@@ -9,9 +9,7 @@ import json
 from dynaconf import Dynaconf
 
 # Configuration
-settings = Dynaconf(
-    settings_files=['../config/settings.yaml']
-)
+settings = Dynaconf(settings_files=['../config/settings.yaml'])
 port = settings.server.port
 
 runPath = os.path.dirname(os.path.realpath(__file__))

@@ -13,12 +13,11 @@ import time
 from dynaconf import Dynaconf
 
 # Configuration
-settings = Dynaconf(
-    settings_files=['../config/settings.yaml']
-)
+settings = Dynaconf(settings_files=['../config/settings.yaml'])
 cpe_path = settings.cpe.path
-cpe_source = (settings.cpe.source)
+cpe_source = settings.cpe.source
 rdb = redis.Redis(host=settings.redis.host, port=settings.redis.port, db=8)
+
 
 class CPEHandler(xml.sax.ContentHandler):
     def __init__(self):

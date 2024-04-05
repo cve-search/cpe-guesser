@@ -13,7 +13,7 @@ import time
 from dynaconf import Dynaconf
 
 # Configuration
-settings = Dynaconf(settings_files=['../config/settings.yaml'])
+settings = Dynaconf(settings_files=["../config/settings.yaml"])
 cpe_path = settings.cpe.path
 cpe_source = settings.cpe.source
 rdb = redis.Redis(host=settings.redis.host, port=settings.redis.port, db=8)
@@ -33,32 +33,32 @@ class CPEHandler(xml.sax.ContentHandler):
 
     def startElement(self, tag, attributes):
         self.CurrentData = tag
-        if tag == 'cpe-23:cpe23-item':
-            self.record['cpe-23'] = attributes['name']
-        if tag == 'title':
+        if tag == "cpe-23:cpe23-item":
+            self.record["cpe-23"] = attributes["name"]
+        if tag == "title":
             self.title_seen = True
-        if tag == 'reference':
-            self.refs.append(attributes['href'])
+        if tag == "reference":
+            self.refs.append(attributes["href"])
 
     def characters(self, data):
         if self.title_seen:
             self.title = self.title + data
 
     def endElement(self, tag):
-        if tag == 'title':
-            self.record['title'] = self.title
+        if tag == "title":
+            self.record["title"] = self.title
             self.title = ""
             self.title_seen = False
-        if tag == 'references':
-            self.record['refs'] = self.refs
+        if tag == "references":
+            self.record["refs"] = self.refs
             self.refs = []
-        if tag == 'cpe-item':
-            to_insert = CPEExtractor(cpe=self.record['cpe-23'])
-            for word in canonize(to_insert['vendor']):
-                insert(word=word, cpe=to_insert['cpeline'])
+        if tag == "cpe-item":
+            to_insert = CPEExtractor(cpe=self.record["cpe-23"])
+            for word in canonize(to_insert["vendor"]):
+                insert(word=word, cpe=to_insert["cpeline"])
                 self.wordcount += 1
-            for word in canonize(to_insert['product']):
-                insert(word=word, cpe=to_insert['cpeline'])
+            for word in canonize(to_insert["product"]):
+                insert(word=word, cpe=to_insert["cpeline"])
                 self.wordcount += 1
             self.record = {}
             self.itemcount += 1
@@ -74,18 +74,18 @@ def CPEExtractor(cpe=None):
         return False
     record = {}
     cpefield = cpe.split(":")
-    record['vendor'] = cpefield[3]
-    record['product'] = cpefield[4]
+    record["vendor"] = cpefield[3]
+    record["product"] = cpefield[4]
     cpeline = ""
     for cpeentry in cpefield[:5]:
         cpeline = f"{cpeline}:{cpeentry}"
-    record['cpeline'] = cpeline[1:]
+    record["cpeline"] = cpeline[1:]
     return record
 
 
 def canonize(value=None):
     value = value.lower()
-    words = value.split('_')
+    words = value.split("_")
     return words
 
 
@@ -97,30 +97,30 @@ def insert(word=None, cpe=None):
     rdb.zadd("rank:cpe", {cpe: 1}, incr=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
-        description='Initializes the Redis database with CPE dictionary.'
+        description="Initializes the Redis database with CPE dictionary."
     )
     argparser.add_argument(
-        '--download',
-        '-d',
-        action='count',
+        "--download",
+        "-d",
+        action="count",
         default=0,
-        help='Download the CPE dictionary even if it already exists.',
+        help="Download the CPE dictionary even if it already exists.",
     )
     argparser.add_argument(
-        '--replace',
-        '-r',
-        action='count',
+        "--replace",
+        "-r",
+        action="count",
         default=0,
-        help='Flush and repopulated the CPE database.',
+        help="Flush and repopulated the CPE database.",
     )
     argparser.add_argument(
-        '--update',
-        '-u',
-        action='store_true',
+        "--update",
+        "-u",
+        action="store_true",
         default=False,
-        help='Update the CPE database without flushing',
+        help="Update the CPE database without flushing",
     )
     args = argparser.parse_args()
 
@@ -144,8 +144,8 @@ if __name__ == '__main__':
 
         print(f"Uncompressing {cpe_path}.gz ...")
         try:
-            with gzip.open(f"{cpe_path}.gz", 'rb') as cpe_gz:
-                with open(cpe_path, 'wb') as cpe_xml:
+            with gzip.open(f"{cpe_path}.gz", "rb") as cpe_gz:
+                with open(cpe_path, "wb") as cpe_xml:
                     shutil.copyfileobj(cpe_gz, cpe_xml)
             os.remove(f"{cpe_path}.gz")
         except (FileNotFoundError, PermissionError) as e:

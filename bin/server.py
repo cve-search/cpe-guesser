@@ -9,7 +9,7 @@ import json
 from dynaconf import Dynaconf
 
 # Configuration
-settings = Dynaconf(settings_files=['../config/settings.yaml'])
+settings = Dynaconf(settings_files=["../config/settings.yaml"])
 port = settings.server.port
 
 runPath = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +20,7 @@ from lib.cpeguesser import CPEGuesser
 class Search:
     def on_post(self, req, resp):
         data_post = req.bounded_stream.read()
-        js = data_post.decode('utf-8')
+        js = data_post.decode("utf-8")
         try:
             q = json.loads(js)
         except ValueError:
@@ -28,7 +28,7 @@ class Search:
             resp.media = "Missing query array or incorrect JSON format"
             return
 
-        if 'query' in q:
+        if "query" in q:
             pass
         else:
             resp.status = falcon.HTTP_400
@@ -36,15 +36,15 @@ class Search:
             return
 
         cpeGuesser = CPEGuesser()
-        resp.media = cpeGuesser.guessCpe(q['query'])
+        resp.media = cpeGuesser.guessCpe(q["query"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = falcon.App()
-    app.add_route('/search', Search())
+    app.add_route("/search", Search())
 
     try:
-        with make_server('', port, app) as httpd:
+        with make_server("", port, app) as httpd:
             print(f"Serving on port {port}...")
             httpd.serve_forever()
     except OSError as e:

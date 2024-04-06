@@ -168,5 +168,5 @@ cpe (vendor:product)  per version to give a probability of the CPE appearance.
 
 Software is open source and released under a 2-Clause BSD License
 
-Copyright (C) 2021 Alexandre Dulaunoy  
-Copyright (C) 2021 Esa Jokinen  
+Copyright (C) 2021-2024 Alexandre Dulaunoy  
+Copyright (C) 2021-2024 Esa Jokinen  

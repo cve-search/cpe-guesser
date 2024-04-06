@@ -18,11 +18,11 @@ Or by calling the Web server (After running `server.py`), example: `curl -s -X P
 
 ### Installation
 
-- `git clone https://github.com/cve-search/cpe-guesser.git`
-- `cd cpe-guesser/bin`
-- Download the CPE dictionary & populate the database with `python3 ./import.py`.
-- Take a cup of black or green tea ().
-- `python3 cpe-guesser/bin/server.py` to run the local HTTP server.
+1. `git clone https://github.com/cve-search/cpe-guesser.git`
+2. `cd cpe-guesser`
+3. Download the CPE dictionary & populate the database with `python3 ./bin/import.py`.
+4. Take a cup of black or green tea ().
+5. `python3 ./bin/server.py` to run the local HTTP server.
 
 If you don't want to install it locally, there is a public online version. Check below. 
 

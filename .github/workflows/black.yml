@@ -1,0 +1,20 @@
+name: Black formatting
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  black:
+    name: Black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Black formatting for Python scripts
+        uses: psf/black@stable
+        with:
+          options: --check --diff --verbose
+          src: .

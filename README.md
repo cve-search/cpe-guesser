@@ -18,13 +18,13 @@ Or by calling the Web server (After running `server.py`), example: `curl -s -X P
 
 ### Installation
 
-- `git clone https://github.com/cve-search/cpe-guesser.git`
-- `cd cpe-guesser/bin`
-- Download the CPE dictionary & populate the database with `python3 ./import.py`.
-- Take a cup of black or green tea ().
-- `python3 cpe-guesser/bin/server.py` to run the local HTTP server.
+1. `git clone https://github.com/cve-search/cpe-guesser.git`
+2. `cd cpe-guesser`
+3. Download the CPE dictionary & populate the database with `python3 ./bin/import.py`.
+4. Take a cup of black or green tea ().
+5. `python3 ./bin/server.py` to run the local HTTP server.
 
-If you don't want to install it locally, there is a public online version. Check below. 
+If you don't want to install it locally, there is a public online version. Check below.
 
 ### Docker
 
@@ -55,9 +55,11 @@ If you do not want to use the Web server, `lookup.py` can still be used. Example
 [cpe-guesser.cve-search.org](https://cpe-guesser.cve-search.org) is public online version of CPE guesser which can be used via
 a simple API. The endpoint is `/search` and the JSON is composed of a query list with the list of keyword(s) to search for.
 
-
-~~~~
+```bash
 curl -s -X POST https://cpe-guesser.cve-search.org/search -d "{\"query\": [\"outlook\", \"connector\"]}" | jq .
+```
+
+```json
 [
   [
     18117,
@@ -72,11 +74,11 @@ curl -s -X POST https://cpe-guesser.cve-search.org/search -d "{\"query\": [\"out
     "cpe:2.3:a:oracle:corporate_time_outlook_connector"
   ]
 ]
-~~~~
+```
 
 ### Command line - `lookup.py`
 
-~~~~
+```text
 usage: lookup.py [-h] WORD [WORD ...]
 
 Find potential CPE names from a list of keyword(s) and return a JSON of the results
@@ -86,11 +88,13 @@ positional arguments:
 
 optional arguments:
   -h, --help  show this help message and exit
-~~~~
+```
 
-
-~~~~
+```bash
 python3 lookup.py microsoft sql server | jq .
+```
+
+```json
 [
   [
     51325,
@@ -129,13 +133,13 @@ python3 lookup.py microsoft sql server | jq .
     "cpe:2.3:a:ibm:tivoli_storage_manager_for_databases_data_protection_for_microsoft_sql_server"
   ]
 ]
-~~~~
+```
 
 ## How does this work?
 
 A CPE entry is composed of a human readable name with some references and the structured CPE name.
 
-~~~
+```xml
   <cpe-item name="cpe:/a:10web:form_maker:1.7.17::~~~wordpress~~">
     <title xml:lang="en-US">10web Form Maker 1.7.17 for WordPress</title>
     <references>
@@ -143,17 +147,16 @@ A CPE entry is composed of a human readable name with some references and the st
     </references>
     <cpe-23:cpe23-item name="cpe:2.3:a:10web:form_maker:1.7.17:*:*:*:*:wordpress:*:*"/>
   </cpe-item>
-~~~
+```
 
 The CPE name is structured with a vendor name, a product name and some additional information.
 CPE name can be easily changed due to vendor name or product name changes, some vendor/product are
 sharing common names or name is composed of multiple words.
 
-
 ### Data
 
 Split vendor name and product name (such as `_`) into single word(s) and then canonize the word. Building an inverse index using
-the cpe vendor:product format as value and the canonized word as key.  Then cpe guesser creates a ranked set with the most common 
+the cpe vendor:product format as value and the canonized word as key.  Then cpe guesser creates a ranked set with the most common
 cpe (vendor:product)  per version to give a probability of the CPE appearance.
 
 ### Redis structure
@@ -161,9 +164,9 @@ cpe (vendor:product)  per version to give a probability of the CPE appearance.
 - `w:<word>` set
 - `s:<word>` sorted set with a score depending of the number of appearance
 
-# License
+## License
 
 Software is open source and released under a 2-Clause BSD License
 
-Copyright (C) 2021 Alexandre Dulaunoy  
-Copyright (C) 2021 Esa Jokinen  
+Copyright (C) 2021-2024 Alexandre Dulaunoy  
+Copyright (C) 2021-2024 Esa Jokinen  

@@ -1,7 +1,6 @@
 # CPE guesser
 
-CPE guesser is a command-line or web service to guess the CPE name based on one or more keyword(s).  Then the result can
-be used against [cve-search](https://github.com/cve-search/cve-search) to do actual searches by CPE names.
+CPE Guesser is a command-line tool or web service designed to guess the CPE name based on one or more keywords. The resulting CPE can then be used with tools like [cve-search](https://github.com/cve-search/cve-search) or [vulnerability-lookup](https://github.com/cve-search/vulnerability-lookup) to perform actual searches using CPE names.
 
 ## Requirements
 
@@ -10,11 +9,15 @@ be used against [cve-search](https://github.com/cve-search/cve-search) to do act
 
 ## Usage
 
-To use CPE guesser, you have to initialise the [Valkey](https://valkey.io/) database with `import.py`.
+To use CPE Guesser, you need to initialize the [Valkey](https://valkey.io/) database with `import.py`.
 
-Then you can use the software with `lookup.py` to find the most probable CPE matching the keywords provided.
+Once initialized, you can use the software with `lookup.py` to find the most probable CPE matching the provided keywords.
 
-Or by calling the Web server (After running `server.py`), example: `curl -s -X POST http://localhost:8000/search -d "{\"query\": [\"tomcat\"]}" | jq .`
+Alternatively, you can call the web server (after running `server.py`). For example:
+
+```bash
+curl -s -X POST http://localhost:8000/search -d '{"query": ["tomcat"]}' | jq .
+```
 
 ### Installation
 
@@ -76,18 +79,29 @@ curl -s -X POST https://cpe-guesser.cve-search.org/search -d "{\"query\": [\"out
 ]
 ```
 
+The endpoint `/unique` is available to retrieve only the best-matching CPE entry.
+
+```bash
+curl -s -X POST https://cpe-guesser.cve-search.org/unique -d "{\"query\": [\"outlook\", \"connector\"]}" | jq .
+```
+
+```json
+"cpe:2.3:a:oracle:corporate_time_outlook_connector"
+```
+
 ### Command line - `lookup.py`
 
 ```text
-usage: lookup.py [-h] WORD [WORD ...]
+usage: lookup.py [-h] [--unique] WORD [WORD ...]
 
 Find potential CPE names from a list of keyword(s) and return a JSON of the results
 
 positional arguments:
   WORD        One or more keyword(s) to lookup
 
-optional arguments:
+options:
   -h, --help  show this help message and exit
+  --unique    Return the best CPE matching the keywords given
 ```
 
 ```bash

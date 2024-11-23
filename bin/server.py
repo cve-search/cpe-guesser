@@ -14,6 +14,7 @@ port = settings.server.port
 
 runPath = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(runPath, ".."))
+
 from lib.cpeguesser import CPEGuesser
 
 
@@ -39,9 +40,36 @@ class Search:
         resp.media = cpeGuesser.guessCpe(q["query"])
 
 
+class Unique:
+    def on_post(self, req, resp):
+        data_post = req.bounded_stream.read()
+        js = data_post.decode("utf-8")
+        try:
+            q = json.loads(js)
+        except ValueError:
+            resp.status = falcon.HTTP_400
+            resp.media = "Missing query array or incorrect JSON format"
+            return
+
+        if "query" in q:
+            pass
+        else:
+            resp.status = falcon.HTTP_400
+            resp.media = "Missing query array or incorrect JSON format"
+            return
+
+        cpeGuesser = CPEGuesser()
+        try:
+            r = cpeGuesser.guessCpe(q["query"])[:1][0][1]
+        except:
+            r = []
+        resp.media = r
+
+
 if __name__ == "__main__":
     app = falcon.App()
     app.add_route("/search", Search())
+    app.add_route("/unique", Unique())
 
     try:
         with make_server("", port, app) as httpd:

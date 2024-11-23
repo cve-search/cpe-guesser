@@ -8,7 +8,7 @@ import urllib.request
 import gzip
 import shutil
 import xml.sax
-import redis
+import valkey
 import time
 from dynaconf import Dynaconf
 
@@ -16,7 +16,7 @@ from dynaconf import Dynaconf
 settings = Dynaconf(settings_files=["../config/settings.yaml"])
 cpe_path = settings.cpe.path
 cpe_source = settings.cpe.source
-rdb = redis.Redis(host=settings.redis.host, port=settings.redis.port, db=8)
+rdb = valkey.Valkey(host=settings.valkey.host, port=settings.valkey.port, db=8)
 
 
 class CPEHandler(xml.sax.ContentHandler):

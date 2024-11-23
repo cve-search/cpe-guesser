@@ -5,12 +5,12 @@ be used against [cve-search](https://github.com/cve-search/cve-search) to do act
 
 ## Requirements
 
-- Redis
+- [Valkey](https://valkey.io/)
 - Python
 
 ## Usage
 
-To use CPE guesser, you have to initialise the Redis database with `import.py`.
+To use CPE guesser, you have to initialise the [Valkey](https://valkey.io/) database with `import.py`.
 
 Then you can use the software with `lookup.py` to find the most probable CPE matching the keywords provided.
 
@@ -28,7 +28,7 @@ If you don't want to install it locally, there is a public online version. Check
 
 ### Docker
 
-#### Single image with existing Redis
+#### Single image with existing Valkey 
 
 ```bash
 docker build . -t cpe-guesser:l.0
@@ -157,9 +157,9 @@ sharing common names or name is composed of multiple words.
 
 Split vendor name and product name (such as `_`) into single word(s) and then canonize the word. Building an inverse index using
 the cpe vendor:product format as value and the canonized word as key.  Then cpe guesser creates a ranked set with the most common
-cpe (vendor:product)  per version to give a probability of the CPE appearance.
+cpe (vendor:product) per version to give a probability of the CPE appearance.
 
-### Redis structure
+### Valkey structure
 
 - `w:<word>` set
 - `s:<word>` sorted set with a score depending of the number of appearance
@@ -168,5 +168,5 @@ cpe (vendor:product)  per version to give a probability of the CPE appearance.
 
 Software is open source and released under a 2-Clause BSD License
 
-Copyright (C) 2021-2024 Alexandre Dulaunoy  
-Copyright (C) 2021-2024 Esa Jokinen  
+Copyright (C) 2021-2024 Alexandre Dulaunoy
+Copyright (C) 2021-2024 Esa Jokinen

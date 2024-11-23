@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import redis
+import valkey
 from dynaconf import Dynaconf
 
 # Configuration
@@ -10,9 +10,9 @@ settings = Dynaconf(settings_files=["../config/settings.yaml"])
 
 class CPEGuesser:
     def __init__(self):
-        self.rdb = redis.Redis(
-            host=settings.redis.host,
-            port=settings.redis.port,
+        self.rdb = valkey.Valkey(
+            host=settings.valkey.host,
+            port=settings.valkey.port,
             db=8,
             decode_responses=True,
         )
@@ -35,4 +35,4 @@ class CPEGuesser:
             rank = self.rdb.zrank("rank:cpe", cpe)
             ranked.append((rank, cpe))
 
-        return sorted(ranked)
+        return sorted(ranked, reverse=True)

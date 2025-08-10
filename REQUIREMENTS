@@ -1,3 +1,5 @@
 valkey[libvalkey]
 falcon
 dynaconf
+pydantic
+spectree
